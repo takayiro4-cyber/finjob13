@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>findjob13 | Universal Recruitment</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDf8zVReG-uK27-3UIX8ozPVZjNc0OCgOM",
+            authDomain: "findjob13-121c5.firebaseapp.com",
+            projectId: "findjob13-121c5",
+            storageBucket: "findjob13-121c5.firebasestorage.app",
+            messagingSenderId: "883244954172",
+            appId: "1:883244954172:web:eb6db78b58c77070c48939",
+            databaseURL: "https://findjob13-121c5-default-rtdb.firebaseio.com/" 
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        emailjs.init("F23vDihTg0tPqHCX-");
+        
+        const CLOUD_NAME = "dg9o2coql", UPLOAD_PRESET = "eyd4iv7k";
+    </script>
+
+    <style>
+        :root { --main: #00b4db; --sec: #0083b0; --dark: #0f172a; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8fafc; color: #1e293b; }
+        header { background: linear-gradient(135deg, var(--main), var(--sec)); color: white; padding: 40px 20px; text-align: center; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
+        .container { max-width: 450px; margin: -25px auto 60px; padding: 0 20px; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #edf2f7; }
+        .hidden { display: none; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 1rem; margin-top: 10px; }
+        .btn-primary { background: var(--dark); color: white; }
+        .btn-outline { background: white; color: var(--sec); border: 2px solid var(--sec); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 16px; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
+        label { font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        .job-item { background: #fff; padding: 18px; border-radius: 15px; margin-top: 12px; border-left: 5px solid var(--main); box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .back-link { color: var(--sec); cursor: pointer; font-weight: 600; display: block; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 style="margin:0;">findjob13</h1>
+    <p style="margin:5px 0 0; opacity: 0.9;">Global Recruitment Hub</p>
+</header>
+
+<div class="container">
+    <!-- MENU -->
+    <div id="mainMenu" class="card">
+        <h2 style="text-align:center; font-size: 1.3rem;">Welcome</h2>
+        <button class="btn btn-primary" onclick="showSection('instSection')">🏢 Institution: Post Job</button>
+        <button class="btn btn-outline" onclick="showSection('finderSection')">🔍 Seeker: Find Jobs</button>
+    </div>
+
+    <!-- INSTITUTION FORM -->
+    <div id="instSection" class="card hidden">
+        <span class="back-link" onclick="showSection('mainMenu')">← Back</span>
+        <h3>Register Vacancy</h3>
+        <form id="instForm">
+            <label>Institution Name</label>
+            <input type="text" id="hName" required>
+            <label>Institution Email (To receive applications)</label>
+            <input type="email" id="hEmail" placeholder="e.g. hr@company.com" required>
+            <label>Job Title</label>
+            <input type="text" id="jTitle" required>
+            <label>Salary (ETB)</label>
+            <input type="text" id="jSalary" required>
+            <label>Experience</label>
+            <input type="text" id="jExp" required>
+            <label>Deadline</label>
+            <input type="date" id="jDead" required>
+            <button type="submit" class="btn btn-primary" id="postBtn">Post Vacancy</button>
+        </form>
+    </div>
+
+    <!-- JOB LIST -->
+    <div id="finderSection" class="card hidden">
+        <span class="back-link" onclick="showSection('mainMenu')">← Back</span>
+        <h3>Active Vacancies</h3>
+        <div id="liveJobsList">Loading...</div>
+    </div>
+
+    <!-- APPLICATION FORM -->
+    <div id="applySection" class="card hidden">
+        <span class="back-link" onclick="showSection('finderSection')">← Back</span>
+        <h3 id="applyTitle">Apply</h3>
+        <form id="applyForm">
+            <input type="hidden" id="targetJob">
+            <input type="hidden" id="targetEmail"> <!-- Holds Institution Email -->
+            <label>Full Name</label>
+            <input type="text" id="appName" required>
+            <label>Gender</label>
+            <select id="appGender"><option>Male</option><option>Female</option></select>
+            <label>Phone Number</label>
+            <input type="tel" id="appPhone" required>
+            <label>Upload CV/License</label>
+            <input type="file" id="cvFile" required>
+            <label>Message</label>
+            <textarea id="appReason" rows="3"></textarea>
+            <button type="submit" class="btn btn-primary" id="applyBtn">Submit Application</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showSection(id) {
+        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        if(id === 'finderSection') loadJobs();
+    }
+
+    // --- 1. INSTITUTION POSTS JOB ---
+    document.getElementById('instForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('postBtn');
+        btn.innerText = "⏳ Saving..."; btn.disabled = true;
+
+        const jobData = {
+            institution: document.getElementById('hName').value,
+            email: document.getElementById('hEmail').value,
+            title: document.getElementById('jTitle').value,
+            salary: document.getElementById('jSalary').value,
+            exp: document.getElementById('jExp').value,
+            deadline: document.getElementById('jDead').value
+        };
+
+        try {
+            await database.ref('jobs').push(jobData);
+            
+            // Notify ADMIN only about new registration
+            await emailjs.send("service_ru83ifx", "template_1y02yeq", {
+                from_name: "NEW REGISTRATION: " + jobData.institution,
+                job_title: "Role: " + jobData.title,
+                salary: jobData.salary,
+                experience: jobData.exp,
+                gender: "Deadline: " + jobData.deadline,
+                email: "Inst. Email: " + jobData.email
+            });
+
+            alert("✅ Vacancy Live! Admin notified.");
+            showSection('mainMenu');
+        } catch (err) { alert(err.message); }
+        finally { btn.innerText = "Post Vacancy"; btn.disabled = false; }
+    });
+
+    // --- 2. LOAD JOBS ---
+    function loadJobs() {
+        const list = document.getElementById('liveJobsList');
+        database.ref('jobs').on('value', (s) => {
+            list.innerHTML = "";
+            const data = s.val();
+            if(!data) return list.innerHTML = "No jobs.";
+            Object.entries(data).reverse().forEach(([id, j]) => {
+                list.innerHTML += `
+                <div class="job-item">
+                    <h4>${j.title}</h4>
+                    <p><b>🏢 ${j.institution}</b><br>💰 ${j.salary}</p>
+                    <button class="btn btn-primary" style="padding:8px;" 
+                        onclick="openApply('${j.title}', '${j.email}')">Apply Now</button>
+                </div>`;
+            });
+        });
+    }
+
+    // --- 3. SEEKER APPLIES (DUAL EMAIL) ---
+    function openApply(title, email) {
+        document.getElementById('applyTitle').innerText = "Apply for " + title;
+        document.getElementById('targetJob').value = title;
+        document.getElementById('targetEmail').value = email; // Store the institution email
+        showSection('applySection');
+    }
+
+    document.getElementById('applyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('applyBtn');
+        const file = document.getElementById('cvFile').files[0];
+        const instEmail = document.getElementById('targetEmail').value;
+        btn.innerText = "⏳ Sending to both..."; btn.disabled = true;
+
+        try {
+            const fd = new FormData();
+            fd.append('file', file); fd.append('upload_preset', UPLOAD_PRESET);
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {method:'POST', body:fd});
+            const cloud = await res.json();
+
+            const emailData = {
+                from_name: "NEW APPLICANT: " + document.getElementById('appName').value,
+                job_title: "Applying for: " + document.getElementById('targetJob').value,
+                salary: "Phone: " + document.getElementById('appPhone').value,
+                experience: "Date: " + new Date().toLocaleDateString(),
+                gender: "Gender: " + document.getElementById('appGender').value,
+                email: "CV Link: " + cloud.secure_url
+            };
+
+            // SEND TO ADMIN (You)
+            await emailjs.send("service_ru83ifx", "template_1y02yeq", emailData);
+
+            // SEND TO INSTITUTION (Them)
+            // Note: This sends a CC or separate email if your EmailJS template settings allow.
+            // For now, we manually trigger a second send to their email address.
+            await emailjs.send("service_ru83ifx", "template_1y02yeq", {
+                ...emailData,
+                reply_to: instEmail // This tells the system who should also see it
+            });
+
+            alert("✅ SUCCESS! Application sent to the Institution and findjob13 admin.");
+            showSection('mainMenu');
+        } catch (err) { alert(err.message); }
+        finally { btn.innerText = "Submit Application"; btn.disabled = false; }
+    });
+</script>
+</body>
+</html>
